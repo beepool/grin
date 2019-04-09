@@ -46,6 +46,8 @@ subcommands:
             about: Generate a configuration grin-server.toml file in the current directory
         - run:
             about: Run the Grin server in this console
+        - start:
+            about: Run the Grin server with daemon
   - client:
       about: Communicates with the Grin server
       subcommands:
