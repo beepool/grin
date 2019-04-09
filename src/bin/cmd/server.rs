@@ -21,6 +21,7 @@ use std::time::Duration;
 
 use clap::ArgMatches;
 use ctrlc;
+use daemonize::Daemonize;
 
 use crate::config::GlobalConfig;
 use crate::core::global;
@@ -130,6 +131,22 @@ pub fn server_command(
 			("run", _) => {
 				start_server(server_config);
 			}
+			("start", _) => {
+                                let daemonize = Daemonize::new()
+                                        .pid_file("/tmp/grin.pid")
+                                        .chown_pid_file(true)
+                                        .working_directory(current_dir().unwrap())
+                                        .privileged_action(move || {
+                                                start_server(server_config.clone());
+                                                loop {
+                                                        thread::sleep(Duration::from_secs(60));
+                                                }
+                                        });
+                                match daemonize.start() {
+                                        Ok(_) => info!("Grin server successfully started."),
+                                        Err(e) => error!("Error starting: {}", e),
+                                }
+                        }
 			("", _) => {
 				println!("Subcommand required, use 'grin help server' for details");
 			}
